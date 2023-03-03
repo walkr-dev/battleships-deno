@@ -3,7 +3,7 @@ export type Position = {
   y: number;
 };
 
-enum BoatType {
+export enum BoatType {
   Carrier,
   Battleship,
   Destroyer,
@@ -32,7 +32,7 @@ export enum BattleshipGameStatus {
   Ended
 }
 
-const allShips: Ship[] = [
+export const allShips: Ship[] = [
   {type: BoatType.Carrier, length: 5, startPosition: undefined, endPosition: undefined},
   {type: BoatType.Battleship, length: 4, startPosition: undefined, endPosition: undefined},
   {type: BoatType.Destroyer, length: 3, startPosition: undefined, endPosition: undefined},

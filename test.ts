@@ -1,5 +1,5 @@
 import * as bs from './SessionManager.ts'
-import { BattleShipErrors, BattleshipGameStatus } from './BattleshipSession.ts';
+import { allShips, BattleShipErrors, BattleshipGameStatus, BoatType } from './BattleshipSession.ts';
 import {
     assertEquals,
     assertThrows
@@ -7,6 +7,8 @@ import {
 import { SessionErrors } from "./SessionManager.ts";
 
 const sessions = bs.init();
+
+// SESSION
 
 Deno.test('Can start a game', () => {
     const game = sessions.newGame(crypto.randomUUID());
@@ -19,6 +21,21 @@ Deno.test('Cant start a game if player has an in-progress game', () => {
     assertThrows(() => sessions.newGame(user),Error, SessionErrors.SessionAlreadyInProgress);
 });
 
+// SHIP PLACEMENT
+
+Deno.test('Can add a ship', () => {
+    const session = sessions.newGame(crypto.randomUUID());
+    const startPos = {x: 1, y: 1};
+    const endPos = {x: 1, y: 2};
+
+    const expectedShip = allShips[4];
+
+    session.addShipPlayer([startPos, endPos]);
+    assertEquals(session.playerBoard[0].startPosition, startPos);
+    assertEquals(session.playerBoard[0].endPosition, endPos);
+    assertEquals(session.playerBoard[0], expectedShip);
+    assertEquals(session.playerBoatInventory.length, 4);
+})
 
 Deno.test('Cant add a ship to an invalid location', () => {
     const session = sessions.newGame(crypto.randomUUID());
@@ -49,3 +66,11 @@ Deno.test('Cant add a weirdly shaped ship', () => {
     const session = sessions.newGame(crypto.randomUUID());
     assertThrows(() =>  session.addShipPlayer([{x: 1, y: 1}, {x: 2, y: 1}, {x: 3, y: 1}, {x: 3, y: 2}]), Error, BattleShipErrors.InvalidShip);
 });
+
+// ATTACKING
+
+// WIN STATE
+
+// LOSE STATE
+
+// WHOLE GAME
