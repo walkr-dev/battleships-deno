@@ -21,7 +21,7 @@ type Ship = {
 export enum BattleShipErrors {
   PositionNotValid = 'Positions are not valid',
   InvalidShip = 'Ship is not valid',
-  ArleadyUsedShip = 'Ship has already been used',
+  AlreadyUsedShip = 'Ship has already been used',
   ShipOverlaps = 'A ship is already placed in in this position',
 }
 
@@ -66,7 +66,7 @@ export class BattleshipSession {
     if(!positions.every(isPositionValid) || arePositionsDiagonal(positions)) throw new Error(BattleShipErrors.PositionNotValid);
     const selectedShip = this.getShipByLength(positions.length, allShips);
     if (selectedShip === undefined) throw new Error(BattleShipErrors.InvalidShip);
-    if (this.getShipByLength(selectedShip.length, inventory) === undefined) throw new Error(BattleShipErrors.ArleadyUsedShip);
+    if (this.getShipByLength(selectedShip.length, inventory) === undefined) throw new Error(BattleShipErrors.AlreadyUsedShip);
     if (this.checkOverlap(selectedShip, board)) throw new Error(BattleShipErrors.ShipOverlaps);
     const ship = inventory.splice(inventory.findIndex(s => s.length === selectedShip.length),1)[0];
     ship.startPosition = positions[0];
@@ -75,10 +75,12 @@ export class BattleshipSession {
   }
 
   getShipByLength(length: number, inventory: Ship[]) {
+    // TODO: make this vector math! check length (distance?) of vector.
     return inventory.find(s => s.length === length);
   }
 
   checkOverlap(ship: Ship, board: Ship[]) {
+    // TODO: check if ship vector intersects with any other board vector 
     return false;
   }
 
