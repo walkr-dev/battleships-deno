@@ -2,12 +2,13 @@ export type Position = {
   x: number;
   y: number;
 };
+
 enum BoatType {
-  "Carrier",
-  "Battleship",
-  "Destroyer",
-  "Submarine",
-  "PatrolBoat"
+  Carrier,
+  Battleship,
+  Destroyer,
+  Submarine,
+  PatrolBoat
 }
 type Ship = {
   type: BoatType;
@@ -16,21 +17,19 @@ type Ship = {
   length: number;
 };
 
-// boat position can be:
-// min: 0, max: 9
-// cant be diagonal
-// cant overlap another ship
-enum HitState {
-  "Undiscovered",
-  "Hit",
-  "Miss"
+
+export enum BattleShipErrors {
+  PositionNotValid = 'Positions are not valid',
+  InvalidShip = 'Ship is not valid',
+  ArleadyUsedShip = 'Ship has already been used',
+  ShipOverlaps = 'A ship is already placed in in this position',
 }
 
 export enum BattleshipGameStatus {
-  "Started",
-  "PlacingShips",
-  "InProgress",
-  "Ended"
+  Started,
+  PlacingShips,
+  InProgress,
+  Ended
 }
 
 const allShips: Ship[] = [
@@ -56,23 +55,42 @@ export class BattleshipSession {
     this.playerId = playerId;
   }
 
-  addShip(positions: Position[]) {
-    const selectedBoat = this.getShipByLength(positions.length, allShips);
-    if (selectedBoat === undefined) throw new Error('Ship is not valid');
-    if (this.getShipByLength(selectedBoat.length, this.playerBoatInventory) === undefined) throw new Error('Ship has already been used');
-    checkOverlap(positions);
-    const ship = this.playerBoatInventory.splice(this.playerBoatInventory.findIndex(s => s.length === selectedBoat.length),1)[0];
+  addShipPlayer(positions: Position[]) {
+    this.addShip(positions, this.playerBoatInventory, this.playerBoard);
+  }
+  addShipAI(positions: Position[]) {
+    this.addShip(positions, this.aiBoatInventory, this.aiBoard);
+  }
+
+  addShip(positions: Position[], inventory: Ship[], board: Ship[]) {
+    if(!positions.every(isPositionValid) || arePositionsDiagonal(positions)) throw new Error(BattleShipErrors.PositionNotValid);
+    const selectedShip = this.getShipByLength(positions.length, allShips);
+    if (selectedShip === undefined) throw new Error(BattleShipErrors.InvalidShip);
+    if (this.getShipByLength(selectedShip.length, inventory) === undefined) throw new Error(BattleShipErrors.ArleadyUsedShip);
+    if (this.checkOverlap(selectedShip, board)) throw new Error(BattleShipErrors.ShipOverlaps);
+    const ship = inventory.splice(inventory.findIndex(s => s.length === selectedShip.length),1)[0];
     ship.startPosition = positions[0];
     ship.endPosition = positions[1];
-    this.playerBoard.push(ship);
+    board.push(ship);
   }
 
   getShipByLength(length: number, inventory: Ship[]) {
     return inventory.find(s => s.length === length);
   }
 
+  checkOverlap(ship: Ship, board: Ship[]) {
+    return false;
+  }
+
 }
 
-function checkOverlap(positions: Position[]) {
+function arePositionsDiagonal(positions: Position[]) {
+  // either x is the same across all positions
+  // or y is the same across all positions
+  return (positions.every((p, i) => p.x === positions[i].x) && positions.every((p, i) => p.y !== positions[i].y))
+      || (positions.every((p, i) => p.y === positions[i].y) && positions.every((p, i) => p.x !== positions[i].x))
+}
 
+function isPositionValid(position: Position): boolean  {
+  return position.x >= 1 && position.y >= 1 && position.x <= 10 && position.y <= 10;
 }
