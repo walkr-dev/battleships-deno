@@ -85,10 +85,7 @@ export class BattleshipSession {
 }
 
 function arePositionsDiagonal(positions: Position[]) {
-  // either x is the same across all positions
-  // or y is the same across all positions
-  return (positions.every((p, i) => p.x === positions[i].x) && positions.every((p, i) => p.y !== positions[i].y))
-      || (positions.every((p, i) => p.y === positions[i].y) && positions.every((p, i) => p.x !== positions[i].x))
+  return (positions.every((p) => p.x === p.y))
 }
 
 function isPositionValid(position: Position): boolean  {
