@@ -64,30 +64,51 @@ export class BattleshipSession {
 
   addShip(positions: Position[], inventory: Ship[], board: Ship[]) {
     if(!positions.every(isPositionValid) || arePositionsDiagonal(positions)) throw new Error(BattleShipErrors.PositionNotValid);
+    if(!arePositionsLinear(positions)) throw new Error(BattleShipErrors.InvalidShip);
     const selectedShip = this.getShipByLength(positions.length, allShips);
     if (selectedShip === undefined) throw new Error(BattleShipErrors.InvalidShip);
     if (this.getShipByLength(selectedShip.length, inventory) === undefined) throw new Error(BattleShipErrors.AlreadyUsedShip);
-    if (this.checkOverlap(selectedShip, board)) throw new Error(BattleShipErrors.ShipOverlaps);
+    const startPosition = positions[0];
+    const endPosition = positions[positions.length - 1]
+    if (this.checkOverlap(startPosition, endPosition, board)) throw new Error(BattleShipErrors.ShipOverlaps);
     const ship = inventory.splice(inventory.findIndex(s => s.length === selectedShip.length),1)[0];
-    ship.startPosition = positions[0];
-    ship.endPosition = positions[1];
+    ship.startPosition = startPosition;
+    ship.endPosition = endPosition;
     board.push(ship);
   }
+
 
   getShipByLength(length: number, inventory: Ship[]) {
     // TODO: make this vector math! check length (distance?) of vector.
     return inventory.find(s => s.length === length);
   }
 
-  checkOverlap(ship: Ship, board: Ship[]) {
-    // TODO: check if ship vector intersects with any other board vector 
-    return false;
+  checkOverlap(startPosition: Position, endPosition: Position, board: Ship[]) {
+    if (board.length === 0) return false;
+    return board.some(s => s.startPosition === startPosition 
+      || s.endPosition === endPosition 
+      || s.startPosition === endPosition 
+      || s.endPosition === startPosition)
   }
 
 }
 
 function arePositionsDiagonal(positions: Position[]) {
-  return (positions.every((p) => p.x === p.y))
+  return positions.every((p) => p.x === p.y)
+}
+
+function arePositionsLinear(positions: Position[]) {
+  let linear = true;
+  const firstX = positions[0].x;
+  const firstY = positions[0].y;
+
+  for (let i = 0; i < positions.length; i++) {
+    if (i > 0) {
+      const point = positions[i];
+      if (point.x !== firstX && point.y !== firstY) linear = false;
+    }
+  }
+   return linear;
 }
 
 function isPositionValid(position: Position): boolean  {

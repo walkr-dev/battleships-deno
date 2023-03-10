@@ -1,5 +1,5 @@
 import * as bs from './SessionManager.ts'
-import { allShips, BattleShipErrors, BattleshipGameStatus, BoatType } from './BattleshipSession.ts';
+import { allShips, BattleShipErrors, BattleshipGameStatus, BoatType, Position } from './BattleshipSession.ts';
 import {
     assertEquals,
     assertThrows
@@ -35,6 +35,31 @@ Deno.test('Can add a ship', () => {
     assertEquals(session.playerBoard[0].endPosition, endPos);
     assertEquals(session.playerBoard[0], expectedShip);
     assertEquals(session.playerBoatInventory.length, 4);
+})
+
+Deno.test('Can add multiple ships', () => {
+    const session = sessions.newGame(crypto.randomUUID());
+    const firstShipStartPos = {x: 1, y: 1};
+    const firstShipEndPos = {x: 1, y: 2};
+
+    const expectedFirstShip = allShips[4];
+
+    const secondShipPos: Position[] = [{x: 2, y: 2}, {x: 2, y: 3}, {x: 2, y: 4}, {x: 2, y: 5}];
+
+    const expectedSecondShip = allShips[1];
+
+    session.addShipPlayer([firstShipStartPos, firstShipEndPos]);
+    session.addShipPlayer(secondShipPos);
+
+    assertEquals(session.playerBoard[0].startPosition, firstShipStartPos);
+    assertEquals(session.playerBoard[0].endPosition, firstShipEndPos);
+    assertEquals(session.playerBoard[0], expectedFirstShip);
+
+    assertEquals(session.playerBoard[1].startPosition, secondShipPos[0]);
+    assertEquals(session.playerBoard[1].endPosition, secondShipPos[3]);
+    assertEquals(session.playerBoard[1], expectedSecondShip);
+
+    assertEquals(session.playerBoatInventory.length, 3);
 })
 
 Deno.test('Cant add a ship to an invalid location', () => {
