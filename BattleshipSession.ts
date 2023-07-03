@@ -83,10 +83,7 @@ export class BattleshipSession {
 
   checkOverlap(startPosition: Position, endPosition: Position, board: Ship[]) {
     if (board.length === 0) return false;
-    return board.some(s => s.startPosition === startPosition 
-      || s.endPosition === endPosition 
-      || s.startPosition === endPosition 
-      || s.endPosition === startPosition)
+    return board.some(s => doPositionLinesIntersect(startPosition, endPosition, s.startPosition ?? {x: 0, y: 0}, s.endPosition ?? {x: 0, y: 0}))
   }
 
 }
@@ -111,4 +108,44 @@ function arePositionsLinear(positions: Position[]) {
 
 function isPositionValid(position: Position): boolean  {
   return position.x >= 1 && position.y >= 1 && position.x <= 10 && position.y <= 10;
+}
+
+
+// see https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
+function doPositionLinesIntersect(positionAStart: Position, positionAEnd: Position, positionBStart: Position, positionBEnd: Position)
+{
+  const p0x = positionAStart.x;
+  const p0y = positionAStart.y;
+  const p1x = positionAEnd.x;
+  const p1y = positionAEnd.y;
+  const p2x = positionBStart.x;
+  const p2y = positionBStart.y;
+  const p3x = positionBEnd.x;
+  const p3y = positionBEnd.y;
+  
+  const s10x = p1x - p0x;
+  const s10y = p1y - p0y;
+  const s32x = p3x - p2x;
+  const s32y = p3y - p2y;
+
+  const denom = s10x * s32y - s32x * s10y;
+  if (denom === 0) return false;
+  const denomPositive = denom > 0;
+
+  const s02x = p0x - p2x;
+  const s02y = p0y - p2y;
+  const sNumer = s10x * s02y - s10y * s02x;
+  if (sNumer < 0 === denomPositive) {
+    return false;
+  }
+
+  const tNumer = s32x * s02y - s32y * s02x;
+  if (tNumer < 0 === denomPositive) {
+    return false;
+  }
+
+  if ((sNumer > denom) === denomPositive || (tNumer > denom) === denomPositive){
+    return false;
+  }
+  return true; 
 }
