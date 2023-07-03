@@ -1,7 +1,5 @@
-export type Position = {
-  x: number;
-  y: number;
-};
+import { Position } from "./types.ts";
+
 
 export enum BoatType {
   Carrier,

@@ -1,10 +1,11 @@
 import * as bs from './SessionManager.ts'
-import { allShips, BattleShipErrors, BattleshipGameStatus, BoatType, Position } from './BattleshipSession.ts';
+import { allShips, BattleShipErrors, BattleshipGameStatus, BoatType } from './BattleshipSession.ts';
 import {
     assertEquals,
     assertThrows
 } from "https://deno.land/std@0.77.0/testing/asserts.ts";
 import { SessionErrors } from "./SessionManager.ts";
+import { Position } from "./types.ts";
 
 const sessions = bs.init();
 
