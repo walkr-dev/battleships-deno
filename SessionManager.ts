@@ -11,7 +11,7 @@ function activeSessions() {
 }
 
 function playerHasActiveSession(playerId: string) {
-    return getSessionByPlayerId(playerId) != undefined;
+    return getSessionByPlayerId(playerId) !== undefined;
 }
 
 function getSessionByPlayerId(playerId: string) {

@@ -15,6 +15,8 @@ type Ship = {
   length: number;
 };
 
+type Board = Ship[];
+
 
 export enum BattleShipErrors {
   PositionNotValid = 'Positions are not valid',
@@ -60,7 +62,7 @@ export class BattleshipSession {
     this.addShip(positions, this.aiBoatInventory, this.aiBoard);
   }
 
-  addShip(positions: Position[], inventory: Ship[], board: Ship[]) {
+  addShip(positions: Position[], inventory: Ship[], board: Board) {
     if(!positions.every(isPositionValid) || arePositionsDiagonal(positions)) throw new Error(BattleShipErrors.PositionNotValid);
     if(!arePositionsLinear(positions)) throw new Error(BattleShipErrors.InvalidShip);
     const selectedShip = this.getShipByLength(positions.length, allShips);
@@ -75,15 +77,18 @@ export class BattleshipSession {
     board.push(ship);
   }
 
-
   getShipByLength(length: number, inventory: Ship[]) {
     // TODO: make this vector math! check length (distance?) of vector.
     return inventory.find(s => s.length === length);
   }
 
-  checkOverlap(startPosition: Position, endPosition: Position, board: Ship[]) {
+  checkOverlap(startPosition: Position, endPosition: Position, board: Board) {
     if (board.length === 0) return false;
     return board.some(s => doPositionLinesIntersect(startPosition, endPosition, s.startPosition ?? {x: 0, y: 0}, s.endPosition ?? {x: 0, y: 0}))
+  }
+
+  attack(position: Position, board: Board) {
+    
   }
 
 }
